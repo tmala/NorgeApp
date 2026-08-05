@@ -3,6 +3,7 @@ import {
   mockFylker, 
   mockKommuner, 
   mockPostnummer, 
+  mockPostnummerKategorier,
   type County, 
   type Municipality, 
   type PostalCode 
@@ -77,20 +78,24 @@ export const useGeoDataStore = defineStore('geoData', {
     sheetNames: {
       fylker: 'fylker',
       kommuner: 'kommuner',
-      postnummer: 'postnummer'
+      postnummer: 'postnummer',
+      postnummerKategori: 'PostnummerKategori'
     },
     fylker: [] as County[],
     kommuner: [] as Municipality[],
     postnummer: [] as PostalCode[],
+    postnummerKategorier: {} as Record<string, string>,
     loading: {
       fylker: false,
       kommuner: false,
-      postnummer: false
+      postnummer: false,
+      postnummerKategori: false
     },
     errors: {
       fylker: null as string | null,
       kommuner: null as string | null,
-      postnummer: null as string | null
+      postnummer: null as string | null,
+      postnummerKategori: null as string | null
     },
     isDemoMode: !import.meta.env.VITE_SPREADSHEET_ID,
     lastSynced: null as string | null,
@@ -105,11 +110,11 @@ export const useGeoDataStore = defineStore('geoData', {
   
   getters: {
     isSyncing(state): boolean {
-      return state.loading.fylker || state.loading.kommuner || state.loading.postnummer;
+      return state.loading.fylker || state.loading.kommuner || state.loading.postnummer || state.loading.postnummerKategori;
     },
     
     hasSyncError(state): boolean {
-      return !!(state.errors.fylker || state.errors.kommuner || state.errors.postnummer);
+      return !!(state.errors.fylker || state.errors.kommuner || state.errors.postnummer || state.errors.postnummerKategori);
     },
     
     countyMap(state): Map<string, County> {
@@ -218,8 +223,9 @@ export const useGeoDataStore = defineStore('geoData', {
       this.fylker = [...mockFylker];
       this.kommuner = [...mockKommuner];
       this.postnummer = [...mockPostnummer];
+      this.postnummerKategorier = { ...mockPostnummerKategorier };
       
-      this.errors = { fylker: null, kommuner: null, postnummer: null };
+      this.errors = { fylker: null, kommuner: null, postnummer: null, postnummerKategori: null };
       this.lastSynced = new Date().toLocaleString('no-NO');
       
       // Reset selection
@@ -234,21 +240,22 @@ export const useGeoDataStore = defineStore('geoData', {
         return;
       }
       
-      this.errors = { fylker: null, kommuner: null, postnummer: null };
+      this.errors = { fylker: null, kommuner: null, postnummer: null, postnummerKategori: null };
       
       // Fetch concurrently
       await Promise.all([
         this.fetchSheet('fylker'),
         this.fetchSheet('kommuner'),
-        this.fetchSheet('postnummer')
+        this.fetchSheet('postnummer'),
+        this.fetchSheet('postnummerKategori')
       ]);
       
-      if (!this.errors.fylker && !this.errors.kommuner && !this.errors.postnummer) {
+      if (!this.errors.fylker && !this.errors.kommuner && !this.errors.postnummer && !this.errors.postnummerKategori) {
         this.lastSynced = new Date().toLocaleString('no-NO');
       }
     },
     
-    async fetchSheet(type: 'fylker' | 'kommuner' | 'postnummer') {
+    async fetchSheet(type: 'fylker' | 'kommuner' | 'postnummer' | 'postnummerKategori') {
       this.loading[type] = true;
       this.errors[type] = null;
       
@@ -303,6 +310,7 @@ export const useGeoDataStore = defineStore('geoData', {
           const postnrIdx = findHeaderIndex(headers, ['postnr', 'postnummer', 'zip', 'postal code', 'postnummer']);
           const poststedIdx = findHeaderIndex(headers, ['poststed', 'sted', 'by', 'city', 'postadresse']);
           const kommuneNrIdx = findHeaderIndex(headers, ['kommunenr', 'kommunenummer', 'kommune_nr', 'kommune_nummer', 'kommune nr', 'kommunenr']);
+          const kategoriIdx = findHeaderIndex(headers, ['kategori', 'category', 'type']);
           
           if (postnrIdx === -1 || poststedIdx === -1 || kommuneNrIdx === -1) {
             throw new Error(`Mangler påkrevde kolonner i postnummerarket. Fant overskrifter: [${headers.join(', ')}]. Vennligst ha kolonner for 'Postnummer', 'Poststed' og 'Kommunenummer'.`);
@@ -311,8 +319,27 @@ export const useGeoDataStore = defineStore('geoData', {
           this.postnummer = dataRows.map(row => ({
             Postnummer: String(row[postnrIdx] || '').trim().padStart(4, '0'),
             Poststed: String(row[poststedIdx] || '').trim().toUpperCase(),
-            Kommunenummer: String(row[kommuneNrIdx] || '').trim().padStart(4, '0')
+            Kommunenummer: String(row[kommuneNrIdx] || '').trim().padStart(4, '0'),
+            Kategori: kategoriIdx !== -1 ? String(row[kategoriIdx] || '').trim().toUpperCase() : undefined
           })).filter(p => p.Postnummer);
+          
+        } else if (type === 'postnummerKategori') {
+          const kategoriIdx = findHeaderIndex(headers, ['kategori', 'category', 'type', 'id', 'code']);
+          const beskrivelseIdx = findHeaderIndex(headers, ['beskrivelse', 'description', 'navn', 'name', 'forklaring']);
+          
+          if (kategoriIdx === -1 || beskrivelseIdx === -1) {
+            throw new Error(`Mangler påkrevde kolonner i PostnummerKategori-arket. Fant overskrifter: [${headers.join(', ')}]. Vennligst ha kolonner for 'Kategori' og 'Beskrivelse'.`);
+          }
+          
+          const kMap: Record<string, string> = {};
+          dataRows.forEach(row => {
+            const key = String(row[kategoriIdx] || '').trim().toUpperCase();
+            const val = String(row[beskrivelseIdx] || '').trim();
+            if (key && val) {
+              kMap[key] = val;
+            }
+          });
+          this.postnummerKategorier = kMap;
         }
         
       } catch (err: any) {

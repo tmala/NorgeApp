@@ -1,67 +1,84 @@
-# NorgeApp
+# NorgeExplorer 🇳🇴
 
-This template should help get you started developing with Vue 3 in Vite.
+NorgeExplorer er en moderne, interaktiv Vue 3-applikasjon (Vite + Pinia) som henter og visualiserer geografiske data for norske fylker, kommuner og postnummer direkte fra et delt Google Regneark. Applikasjonen tilbyr et premium, mørkt dashboard-grensesnitt med glassmorfisme, sanntidssøk, drill-down utforsking og detaljvisning med kartlenker.
 
-## Recommended IDE Setup
+---
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## Funksjoner
 
-## Recommended Browser Setup
+* **Google Regneark Synkronisering:** Data hentes direkte fra nettleseren uten API-nøkkel ved bruk av Google Sheets' Visualisering-API (`gviz/tq`).
+* **Fuzzy Kolonnesøk:** Synkroniseringen gjenkjenner automatisk kolonnenavn uavhengig av om de er skrevet i små/store bokstaver eller med forkortelser (f.eks. `Fylkesnr`, `kommunenummer` eller `Poststed`).
+* **Robust Demo-modus:** Inneholder et innebygd ekte sett med norske fylker, kommuner og postnummer som lastes inn hvis ingen Spreadsheet-ID er konfigurert.
+* **Avansert Søk:** Søk på tvers av postnummer, poststed, kommunenavn og fylker samtidig.
+* **Underkatalog-støtte:** Konfigurert til å kunne hostes under `/nex/` på en produksjonswebserver.
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+---
 
-## Type Support for `.vue` Imports in TS
+## Konfigurasjon av Google Regneark
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+Applikasjonen forventer et Google Regneark med tre spesifikke faner:
 
-## Customize configuration
+1. `fylker` med kolonnene: `Fylkesnummer` og `Fylkesnavn`.
+2. `kommuner` med kolonnene: `Kommunenummer`, `Kommunenavn` og `Fylkesnummer`.
+3. `postnummer` med kolonnene: `Postnummer`, `Poststed` og `Kommunenummer`.
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+### Trinn for oppsett:
+1. Åpne regnearket i Google Sheets.
+2. Klikk på **Fil** -> **Del** -> **Publiser på nettet**.
+3. Velg **Hele dokumentet** og **Webside**, og klikk på **Publiser**.
+4. Kopier regnearkets ID fra URL-en i nettleseren din (den lange strengen mellom `/d/` og `/edit`).
+5. Opprett en `.env`-fil i prosjektets rotmappe, og lim inn ID-en:
+   ```env
+   VITE_SPREADSHEET_ID=din_regneark_id_her
+   ```
 
-## Project Setup
+---
 
+## Komme i gang
+
+### Installasjon
+Installer prosjektets avhengigheter:
 ```sh
 npm install
 ```
 
-### Compile and Hot-Reload for Development
-
+### Kjøre lokalt (Utvikling)
+Start den lokale utviklingsserveren:
 ```sh
 npm run dev
 ```
+Åpne nettleseren på `http://localhost:5173/`.
 
-### Type-Check, Compile and Minify for Production
+### TypeScript Type-sjekk
+For å verifisere typer på tvers av prosjektet:
+```sh
+npm run type-check
+```
 
+### Bygge for produksjon
+Kompiler og minimer kildekoden for produksjon:
 ```sh
 npm run build
 ```
+Dette oppretter en `dist`-mappe med produksjonsklare filer, der alle stier er prefikset med `/nex/` for hosting under underkatalogen `/nex`.
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+---
 
-```sh
-npm run test:unit
+## Prosjektstruktur
+
 ```
-
-### Run End-to-End Tests with [Playwright](https://playwright.dev)
-
-```sh
-# Install browsers for the first run
-npx playwright install
-
-# When testing on CI, must build the project first
-npm run build
-
-# Runs the end-to-end tests
-npm run test:e2e
-# Runs the tests only on Chromium
-npm run test:e2e -- --project=chromium
-# Runs the tests of a specific file
-npm run test:e2e -- tests/example.spec.ts
-# Runs the tests in debug mode
-npm run test:e2e -- --debug
+NorgeApp/
+├── .env                  # Inneholder Google Spreadsheet ID
+├── index.html            # Hoved HTML-fil med Google Fonts
+├── vite.config.ts        # Vite-konfigurasjon med base: '/nex/'
+├── src/
+│   ├── main.ts           # Oppstartsskript og registrering av Pinia
+│   ├── App.vue           # Hovedkomponenten for dashboardet og søk
+│   ├── assets/
+│   │   ├── base.css      # Design system variabler og base resets
+│   │   └── main.css      # Dashboard- og komponent-spesifikke stiler
+│   ├── services/
+│   │   └── mockData.ts   # Ekte demo-geodata for offline/demo fallback
+│   └── stores/
+│     └── geoData.ts     # Pinia store med CSV-parsing og app-tilstand
 ```

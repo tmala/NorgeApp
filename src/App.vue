@@ -21,6 +21,14 @@ const matchedCount = computed(() => {
   if (!results) return 0;
   return results.fylker.length + results.kommuner.length + results.postnummer.length;
 });
+
+function handleUpdateClick() {
+  if (geoStore.isDemoMode) {
+    alert("Mangler ID for Google Regnearket i environment-filen (.env)");
+    return;
+  }
+  geoStore.syncData();
+}
 </script>
 
 <template>
@@ -80,7 +88,7 @@ const matchedCount = computed(() => {
       <!-- Action Buttons -->
       <button 
         class="btn btn-secondary" 
-        @click="geoStore.syncData()" 
+        @click="handleUpdateClick" 
         :disabled="geoStore.isSyncing"
         title="oppdater data"
         style="padding: 0.5rem; display: flex; align-items: center; justify-content: center;"
@@ -124,11 +132,11 @@ const matchedCount = computed(() => {
         <div class="info-sub-table">
           <div class="info-row">
             <span class="info-row-label">Data hentet:</span>
-            <span class="info-row-value">{{ geoStore.lastSynced || 'Aldri' }}</span>
+            <span class="info-row-value">{{ geoStore.isDemoMode ? 'Demo modus' : (geoStore.lastSynced || 'Aldri') }}</span>
           </div>
-          <div v-if="geoStore.lastUpdatedSource && !geoStore.isDemoMode" class="info-row">
+          <div class="info-row">
             <span class="info-row-label">Data oppdatert:</span>
-            <span class="info-row-value">{{ geoStore.lastUpdatedSource }}</span>
+            <span class="info-row-value">{{ geoStore.isDemoMode ? 'Demo modus' : (geoStore.lastUpdatedSource || 'Aldri') }}</span>
           </div>
         </div>
       </div>

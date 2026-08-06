@@ -6,19 +6,38 @@ const geoStore = useGeoDataStore();
 const isCollapsed = ref(false);
 
 const displayedKommuner = computed(() => {
+  const query = geoStore.searchQuery.trim().toLowerCase();
+  if (query) {
+    const matched = geoStore.searchResults?.kommuner || [];
+    if (geoStore.selectedFylkeId) {
+      return matched.filter(k => k.Fylkesnummer === geoStore.selectedFylkeId);
+    }
+    return matched;
+  }
+
   if (geoStore.selectedFylkeId) {
     return geoStore.kommuner.filter(k => k.Fylkesnummer === geoStore.selectedFylkeId);
   }
   return geoStore.kommuner;
+});
+
+const selectedMuni = computed(() => {
+  return geoStore.kommuner.find(k => k.Kommunenummer === geoStore.selectedKommuneId) || null;
 });
 </script>
 
 <template>
   <div class="nav-col" :class="{ collapsed: isCollapsed }">
     <div class="nav-col-header" @click="isCollapsed = !isCollapsed">
-      <span style="display: flex; align-items: center; gap: 0.35rem;">
-        Kommune 
-        <span v-if="geoStore.selectedFylkeId && !isCollapsed" style="text-transform: none; color: var(--color-primary); font-weight: 550;">
+      <span style="display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap;">
+        <span>Kommune</span>
+        <span v-if="geoStore.searchQuery" style="text-transform: none; color: var(--color-text-secondary); font-size: 0.75rem; font-weight: 500; background: rgba(255, 255, 255, 0.06); padding: 0.05rem 0.3rem; border-radius: 4px;">
+          {{ displayedKommuner.length }}
+        </span>
+        <span v-if="selectedMuni" style="text-transform: none; color: var(--color-primary); font-weight: 600; font-size: 0.82rem;">
+          : {{ selectedMuni.Kommunenavn }} ({{ selectedMuni.Kommunenummer }})
+        </span>
+        <span v-else-if="geoStore.selectedFylkeId && !isCollapsed" style="text-transform: none; color: var(--color-text-muted); font-size: 0.8rem;">
           ({{ displayedKommuner.length }})
         </span>
       </span>
@@ -37,8 +56,8 @@ const displayedKommuner = computed(() => {
     
     <transition name="slide-fade">
       <ul v-if="!isCollapsed" class="nav-list">
-        <li v-if="displayedKommuner.length === 0" class="empty-state" style="padding: 1rem; font-size: 0.8rem;">
-          Ingen kommuner tilgjengelig
+        <li v-if="displayedKommuner.length === 0" class="empty-state" style="padding: 1rem; font-size: 0.8rem; color: var(--color-text-muted); text-align: center;">
+          Ingen kommuner funnet
         </li>
         <li v-for="k in displayedKommuner" :key="k.Kommunenummer">
           <button 

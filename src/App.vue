@@ -46,29 +46,25 @@ const matchedCount = computed(() => {
     
     <div class="sync-status-container">
       <!-- Sync State Indicator -->
-      <span v-if="geoStore.isSyncing" class="badge-sync success">
-        <svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+      <span v-if="geoStore.isSyncing" class="badge-sync info" title="Synkroniserer..." style="padding: 0.5rem; justify-content: center;">
+        <svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
           <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A8.97 8.97 0 0 0 20 12c0-4.97-4.03-9-9-9zm0 12c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A8.97 8.97 0 0 0 4 12c0 4.97 4.03 9 9 9v3l4-4-4-4v3c-3.31 0-6-2.69-6-6h2z"/>
         </svg>
-        Synkroniserer...
       </span>
-      <span v-else-if="geoStore.isDemoMode" class="badge-sync demo">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+      <span v-else-if="geoStore.isDemoMode" class="badge-sync demo" title="Demo-modus" style="padding: 0.5rem; justify-content: center;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
         </svg>
-        Demo-modus
       </span>
-      <span v-else-if="geoStore.hasSyncError" class="badge-sync error" title="Noen ark feilet i synkroniseringen">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+      <span v-else-if="geoStore.hasSyncError" class="badge-sync error" title="Noen ark feilet i synkroniseringen" style="padding: 0.5rem; justify-content: center;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
         </svg>
-        Synk-feil
       </span>
-      <span v-else class="badge-sync success">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+      <span v-else class="badge-sync success" :title="`Oppdatert ${geoStore.lastSynced || 'Aldri'}`" style="padding: 0.5rem; justify-content: center; cursor: help;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
           <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
         </svg>
-        Google Sheets synkronisert
       </span>
 
       <!-- Toggle stats button -->
@@ -76,10 +72,8 @@ const matchedCount = computed(() => {
         class="btn btn-secondary" 
         @click="isStatsExpanded = !isStatsExpanded"
         :title="isStatsExpanded ? 'Skjul info' : 'Vis info'"
+        style="padding: 0.5rem 0.85rem;"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style="margin-right: 0.25rem;">
-          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/>
-        </svg>
         {{ isStatsExpanded ? 'Skjul info' : 'Vis info' }}
       </button>
 
@@ -88,66 +82,54 @@ const matchedCount = computed(() => {
         class="btn btn-secondary" 
         @click="geoStore.syncData()" 
         :disabled="geoStore.isSyncing"
-        title="Synkroniser data på nytt"
+        title="oppdater data"
+        style="padding: 0.5rem; display: flex; align-items: center; justify-content: center;"
       >
-        <svg :class="{'animate-spin': geoStore.isSyncing}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style="margin-right: 0.25rem;">
+        <svg :class="{'animate-spin': geoStore.isSyncing}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
           <path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
         </svg>
-        Synkroniser
       </button>
     </div>
   </header>
 
-  <!-- Stats Grid -->
+  <!-- Compact Info Panel -->
   <transition name="slide-fade">
-    <section v-if="isStatsExpanded" class="stats-grid">
-      <div class="glass-panel stat-card">
-        <div class="stat-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-          </svg>
-        </div>
-        <div class="stat-info">
-          <span class="stat-value">{{ geoStore.fylker.length }}</span>
-          <span class="stat-label">Fylker</span>
-        </div>
+    <section v-if="isStatsExpanded" class="compact-info-panel">
+      <!-- Info Icon (Left) -->
+      <div class="info-icon-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+        </svg>
       </div>
 
-      <div class="glass-panel stat-card">
-        <div class="stat-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-            <path d="M12 7V3H2v18h20V7H12zm-2 12H4v-2h6v2zm0-4H4v-2h6v2zm0-4H4V9h6v2zm0-4H4V5h6v2zm10 12h-8v-2h8v2zm0-4h-8v-2h8v2zm0-4h-8V9h8v2z"/>
-          </svg>
+      <!-- Info Tables Split (Right) -->
+      <div class="info-tables-container">
+        <!-- Count Stats Table -->
+        <div class="info-sub-table">
+          <div class="info-row">
+            <span class="info-row-label">Fylker:</span>
+            <span class="info-row-value">{{ geoStore.fylker.length }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-row-label">Kommuner:</span>
+            <span class="info-row-value">{{ geoStore.kommuner.length }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-row-label">Postnummer:</span>
+            <span class="info-row-value">{{ geoStore.postnummer.length }}</span>
+          </div>
         </div>
-        <div class="stat-info">
-          <span class="stat-value">{{ geoStore.kommuner.length }}</span>
-          <span class="stat-label">Kommuner</span>
-        </div>
-      </div>
 
-      <div class="glass-panel stat-card">
-        <div class="stat-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4v-4h11v4zm0-5H4V9h11v4zm5 5h-4V9h4v9z"/>
-          </svg>
-        </div>
-        <div class="stat-info">
-          <span class="stat-value">{{ geoStore.postnummer.length }}</span>
-          <span class="stat-label">Postnummer</span>
-        </div>
-      </div>
-
-      <div class="glass-panel stat-card">
-        <div class="stat-icon" style="color: var(--color-text-secondary); background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1)">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-            <path d="M21 10.12h-6.78l.84-3.89L15 6.08 9.42 11.66c-.28.27-.42.64-.42 1.03v6.62c0 .77.63 1.4 1.4 1.4h6.58c.58 0 1.08-.35 1.3-.87l2.63-6.14c.07-.17.11-.36.11-.56V11.5c0-.76-.64-1.38-1.42-1.38zM4 20h3v-8H4v8z"/>
-          </svg>
-        </div>
-        <div class="stat-info">
-          <span class="stat-value" style="font-size: 0.95rem; font-weight: 600;">
-            {{ geoStore.isDemoMode ? 'Lokal demo-data' : 'Google Sheets' }}
-          </span>
-          <span class="stat-label">Kilde (Synk: {{ geoStore.lastSynced || 'Aldri' }})</span>
+        <!-- Sync Timestamps Table -->
+        <div class="info-sub-table">
+          <div class="info-row">
+            <span class="info-row-label">Data hentet:</span>
+            <span class="info-row-value">{{ geoStore.lastSynced || 'Aldri' }}</span>
+          </div>
+          <div v-if="geoStore.lastUpdatedSource && !geoStore.isDemoMode" class="info-row">
+            <span class="info-row-label">Data oppdatert:</span>
+            <span class="info-row-value">{{ geoStore.lastUpdatedSource }}</span>
+          </div>
         </div>
       </div>
     </section>
@@ -165,6 +147,8 @@ const matchedCount = computed(() => {
       <li v-if="geoStore.errors.fylker"><strong>Fylker:</strong> {{ geoStore.errors.fylker }}</li>
       <li v-if="geoStore.errors.kommuner"><strong>Kommuner:</strong> {{ geoStore.errors.kommuner }}</li>
       <li v-if="geoStore.errors.postnummer"><strong>Postnummer:</strong> {{ geoStore.errors.postnummer }}</li>
+      <li v-if="geoStore.errors.postnummerKategori"><strong>Kategorier:</strong> {{ geoStore.errors.postnummerKategori }}</li>
+      <li v-if="geoStore.errors.config"><strong>Konfigurasjon (Config):</strong> {{ geoStore.errors.config }}</li>
     </ul>
     <p style="font-size: 0.85rem; color: var(--color-text-secondary); margin-top: 0.75rem;">
       Tips: Sjekk at regnearket har faner med riktig navn, at det er publisert offentlig til nettet, og at regneark-ID-en i <code>.env</code>-filen er korrekt.
@@ -189,114 +173,24 @@ const matchedCount = computed(() => {
         </div>
         
         <button 
-          v-if="geoStore.searchQuery" 
           class="btn btn-secondary" 
-          @click="geoStore.searchQuery = ''"
+          @click="geoStore.selectFylke(null)"
+          :disabled="!geoStore.searchQuery && !geoStore.selectedFylkeId"
           style="padding: 0.5rem 0.75rem;"
         >
           Nullstill
         </button>
       </div>
 
-      <!-- Filters/Tabs for Search Scope -->
-      <div class="tabs-wrapper">
-        <button 
-          class="tab-btn" 
-          :class="{ active: geoStore.searchType === 'all' }" 
-          @click="geoStore.searchType = 'all'"
-        >
-          Alle resultater
-        </button>
-        <button 
-          class="tab-btn" 
-          :class="{ active: geoStore.searchType === 'fylke' }" 
-          @click="geoStore.searchType = 'fylke'"
-        >
-          Fylker
-        </button>
-        <button 
-          class="tab-btn" 
-          :class="{ active: geoStore.searchType === 'kommune' }" 
-          @click="geoStore.searchType = 'kommune'"
-        >
-          Kommuner
-        </button>
-        <button 
-          class="tab-btn" 
-          :class="{ active: geoStore.searchType === 'postnummer' }" 
-          @click="geoStore.searchType = 'postnummer'"
-        >
-          Postnummer
-        </button>
+
+
+      <!-- Active Search Results Notification -->
+      <div v-if="geoStore.searchQuery && matchedCount === 0" class="empty-state" style="padding: 1rem; font-size: 0.85rem; color: var(--color-text-muted); text-align: center; border: 1px dashed var(--color-border); border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.01);">
+        Ingen søketreff for "{{ geoStore.searchQuery }}"
       </div>
 
-      <!-- Active Search Results rendering -->
-      <div v-if="geoStore.searchQuery" class="search-results-container">
-        <div v-if="matchedCount === 0" class="empty-state">
-          Ingen treff for "{{ geoStore.searchQuery }}". Prøv et annet søk eller sjekk skrivemåten.
-        </div>
-        
-        <div v-else>
-          <!-- Fylker Results -->
-          <div v-if="geoStore.searchResults?.fylker.length" style="margin-bottom: 1.25rem;">
-            <h4 class="search-section-title">Fylker ({{ geoStore.searchResults.fylker.length }})</h4>
-            <div style="display: flex; flex-direction: column; gap: 0.4rem;">
-              <button 
-                v-for="f in geoStore.searchResults.fylker" 
-                :key="f.Fylkesnummer" 
-                class="result-item" 
-                @click="geoStore.selectFylke(f.Fylkesnummer)"
-              >
-                <div class="result-main">
-                  <span>{{ f.Fylkesnavn }}</span>
-                  <span class="badge-county">Fylke #{{ f.Fylkesnummer }}</span>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          <!-- Kommuner Results -->
-          <div v-if="geoStore.searchResults?.kommuner.length" style="margin-bottom: 1.25rem;">
-            <h4 class="search-section-title">Kommuner ({{ geoStore.searchResults.kommuner.length }})</h4>
-            <div style="display: flex; flex-direction: column; gap: 0.4rem;">
-              <button 
-                v-for="k in geoStore.searchResults.kommuner" 
-                :key="k.Kommunenummer" 
-                class="result-item"
-                @click="geoStore.selectKommune(k.Kommunenummer)"
-              >
-                <div class="result-main">
-                  <span>{{ k.Kommunenavn }}</span>
-                  <span class="badge-muni">Kommune #{{ k.Kommunenummer }}</span>
-                </div>
-                <div class="result-sub">Tilhører: {{ k.countyName }} fylke</div>
-              </button>
-            </div>
-          </div>
-
-          <!-- Postnummer Results -->
-          <div v-if="geoStore.searchResults?.postnummer.length" style="margin-bottom: 1.25rem;">
-            <h4 class="search-section-title">Postnummer ({{ geoStore.searchResults.postnummer.length }})</h4>
-            <div style="display: flex; flex-direction: column; gap: 0.4rem;">
-              <button 
-                v-for="p in geoStore.searchResults.postnummer" 
-                :key="p.Postnummer" 
-                class="result-item"
-                @click="geoStore.selectPostnummer(p.Postnummer)"
-              >
-                <div class="result-main">
-                  <span>{{ p.Postnummer }} {{ p.Poststed }}</span>
-                  <span class="badge-zip">Postnummer</span>
-                </div>
-                <div class="result-sub">Kommune: {{ p.municipalityName }} ({{ p.Kommunenummer }}), Fylke: {{ p.countyName }}</div>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Standard Navigation Columns -->
-      <div v-else class="nav-columns">
+      <!-- Navigation Columns -->
+      <div class="nav-columns">
         <CountyList />
         <MunicipalityList />
         <PostalCodeList />

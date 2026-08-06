@@ -1,15 +1,35 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useGeoDataStore } from '../../stores/geoData';
 
 const geoStore = useGeoDataStore();
 const isCollapsed = ref(false);
+
+const displayedFylker = computed(() => {
+  const query = geoStore.searchQuery.trim().toLowerCase();
+  if (!query) return geoStore.fylker;
+  return geoStore.fylker.filter(f => 
+    f.Fylkesnummer.includes(query) || f.Fylkesnavn.toLowerCase().includes(query)
+  );
+});
+
+const selectedCounty = computed(() => {
+  return geoStore.fylker.find(f => f.Fylkesnummer === geoStore.selectedFylkeId) || null;
+});
 </script>
 
 <template>
   <div class="nav-col" :class="{ collapsed: isCollapsed }">
     <div class="nav-col-header" @click="isCollapsed = !isCollapsed">
-      <span>Fylke</span>
+      <span style="display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap;">
+        <span>Fylke</span>
+        <span v-if="geoStore.searchQuery" style="text-transform: none; color: var(--color-text-secondary); font-size: 0.75rem; font-weight: 500; background: rgba(255, 255, 255, 0.06); padding: 0.05rem 0.3rem; border-radius: 4px;">
+          {{ displayedFylker.length }}
+        </span>
+        <span v-if="selectedCounty" style="text-transform: none; color: var(--color-success); font-weight: 600; font-size: 0.82rem;">
+          : {{ selectedCounty.Fylkesnavn }} ({{ selectedCounty.Fylkesnummer }})
+        </span>
+      </span>
       <svg 
         xmlns="http://www.w3.org/2000/svg" 
         viewBox="0 0 24 24" 
@@ -25,7 +45,10 @@ const isCollapsed = ref(false);
     
     <transition name="slide-fade">
       <ul v-if="!isCollapsed" class="nav-list">
-        <li v-for="f in geoStore.fylker" :key="f.Fylkesnummer">
+        <li v-if="displayedFylker.length === 0" class="empty-state" style="padding: 1rem; font-size: 0.8rem; color: var(--color-text-muted); text-align: center;">
+          Ingen fylker funnet
+        </li>
+        <li v-for="f in displayedFylker" :key="f.Fylkesnummer">
           <button 
             class="nav-item" 
             :class="{ active: geoStore.selectedFylkeId === f.Fylkesnummer }"

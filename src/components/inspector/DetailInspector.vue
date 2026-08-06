@@ -250,7 +250,7 @@ const displayedKommunerForCounty = computed(() => {
       </svg>
       <div style="font-weight: 550; font-size: 1.05rem; color: var(--color-text-secondary);">Ingen detaljer valgt</div>
       <p style="font-size: 0.85rem; color: var(--color-text-muted); max-width: 260px; line-height: 1.4;">
-        Velg et fylke, en kommune eller et postnummer i navigatøren til venstre for å se detaljert informasjon og lenker.
+        Velg et fylke, en kommune eller et postnummer i navigatøren for å se detaljert informasjon og lenker.
       </p>
     </div>
   </section>

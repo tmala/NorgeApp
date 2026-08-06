@@ -9,6 +9,17 @@ import {
   type PostalCode 
 } from '../services/mockData';
 
+// Helper function to format date as DD.MM.YYYY HH:mm:ss
+function formatDateTime(date: Date): string {
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
+}
+
 // Simple but robust CSV parser that handles quotes and newlines
 function parseCSV(text: string): string[][] {
   const lines: string[][] = [];
@@ -79,7 +90,8 @@ export const useGeoDataStore = defineStore('geoData', {
       fylker: 'fylker',
       kommuner: 'kommuner',
       postnummer: 'postnummer',
-      postnummerKategori: 'PostnummerKategori'
+      postnummerKategori: 'PostnummerKategori',
+      config: 'Config'
     },
     fylker: [] as County[],
     kommuner: [] as Municipality[],
@@ -89,16 +101,19 @@ export const useGeoDataStore = defineStore('geoData', {
       fylker: false,
       kommuner: false,
       postnummer: false,
-      postnummerKategori: false
+      postnummerKategori: false,
+      config: false
     },
     errors: {
       fylker: null as string | null,
       kommuner: null as string | null,
       postnummer: null as string | null,
-      postnummerKategori: null as string | null
+      postnummerKategori: null as string | null,
+      config: null as string | null
     },
     isDemoMode: !import.meta.env.VITE_SPREADSHEET_ID,
     lastSynced: null as string | null,
+    lastUpdatedSource: null as string | null,
     
     // UI selection & search state
     searchQuery: '',
@@ -110,11 +125,11 @@ export const useGeoDataStore = defineStore('geoData', {
   
   getters: {
     isSyncing(state): boolean {
-      return state.loading.fylker || state.loading.kommuner || state.loading.postnummer || state.loading.postnummerKategori;
+      return state.loading.fylker || state.loading.kommuner || state.loading.postnummer || state.loading.postnummerKategori || state.loading.config;
     },
     
     hasSyncError(state): boolean {
-      return !!(state.errors.fylker || state.errors.kommuner || state.errors.postnummer || state.errors.postnummerKategori);
+      return !!(state.errors.fylker || state.errors.kommuner || state.errors.postnummer || state.errors.postnummerKategori || state.errors.config);
     },
     
     countyMap(state): Map<string, County> {
@@ -224,9 +239,11 @@ export const useGeoDataStore = defineStore('geoData', {
       this.kommuner = [...mockKommuner];
       this.postnummer = [...mockPostnummer];
       this.postnummerKategorier = { ...mockPostnummerKategorier };
+      this.lastUpdatedSource = null;
       
-      this.errors = { fylker: null, kommuner: null, postnummer: null, postnummerKategori: null };
-      this.lastSynced = new Date().toLocaleString('no-NO');
+      this.errors = { fylker: null, kommuner: null, postnummer: null, postnummerKategori: null, config: null };
+      this.lastSynced = formatDateTime(new Date());
+      this.lastUpdatedSource = formatDateTime(new Date('2026-08-06T08:23:45.131Z'));
       
       // Reset selection
       this.selectedFylkeId = null;
@@ -240,22 +257,23 @@ export const useGeoDataStore = defineStore('geoData', {
         return;
       }
       
-      this.errors = { fylker: null, kommuner: null, postnummer: null, postnummerKategori: null };
+      this.errors = { fylker: null, kommuner: null, postnummer: null, postnummerKategori: null, config: null };
       
       // Fetch concurrently
       await Promise.all([
         this.fetchSheet('fylker'),
         this.fetchSheet('kommuner'),
         this.fetchSheet('postnummer'),
-        this.fetchSheet('postnummerKategori')
+        this.fetchSheet('postnummerKategori'),
+        this.fetchSheet('config')
       ]);
       
-      if (!this.errors.fylker && !this.errors.kommuner && !this.errors.postnummer && !this.errors.postnummerKategori) {
-        this.lastSynced = new Date().toLocaleString('no-NO');
+      if (!this.errors.fylker && !this.errors.kommuner && !this.errors.postnummer && !this.errors.postnummerKategori && !this.errors.config) {
+        this.lastSynced = formatDateTime(new Date());
       }
     },
     
-    async fetchSheet(type: 'fylker' | 'kommuner' | 'postnummer' | 'postnummerKategori') {
+    async fetchSheet(type: 'fylker' | 'kommuner' | 'postnummer' | 'postnummerKategori' | 'config') {
       this.loading[type] = true;
       this.errors[type] = null;
       
@@ -340,6 +358,26 @@ export const useGeoDataStore = defineStore('geoData', {
             }
           });
           this.postnummerKategorier = kMap;
+        } else if (type === 'config') {
+          const keyIdx = findHeaderIndex(headers, ['key', 'nøkkel', 'id', 'name']);
+          const valIdx = findHeaderIndex(headers, ['value', 'verdi', 'val']);
+          
+          if (keyIdx === -1 || valIdx === -1) {
+            throw new Error(`Mangler påkrevde kolonner i Config-arket. Fant overskrifter: [${headers.join(', ')}]. Vennligst ha kolonner for 'Key' og 'Value'.`);
+          }
+          
+          const lastUpdateRow = dataRows.find(row => String(row[keyIdx] || '').trim().toUpperCase() === 'LAST_UPDATE');
+          if (lastUpdateRow) {
+            let rawVal = String(lastUpdateRow[valIdx] || '').trim();
+            if (rawVal.startsWith("'")) {
+              rawVal = rawVal.substring(1);
+            }
+            try {
+              this.lastUpdatedSource = formatDateTime(new Date(rawVal));
+            } catch (e) {
+              console.warn('Feil ved parsing av LAST_UPDATE verdi:', e);
+            }
+          }
         }
         
       } catch (err: any) {

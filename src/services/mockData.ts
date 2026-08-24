@@ -1,6 +1,7 @@
 export interface County {
   Fylkesnummer: string;
   Fylkesnavn: string;
+  Nettsted?: string;
 }
 
 export interface Municipality {
@@ -17,17 +18,17 @@ export interface PostalCode {
 }
 
 export const mockFylker: County[] = [
-  { Fylkesnummer: "03", Fylkesnavn: "Oslo" },
-  { Fylkesnummer: "11", Fylkesnavn: "Rogaland" },
-  { Fylkesnummer: "15", Fylkesnavn: "Møre og Romsdal" },
-  { Fylkesnummer: "18", Fylkesnavn: "Nordland" },
-  { Fylkesnummer: "32", Fylkesnavn: "Akershus" },
-  { Fylkesnummer: "34", Fylkesnavn: "Innlandet" },
-  { Fylkesnummer: "42", Fylkesnavn: "Agder" },
-  { Fylkesnummer: "46", Fylkesnavn: "Vestland" },
-  { Fylkesnummer: "50", Fylkesnavn: "Trøndelag" },
-  { Fylkesnummer: "55", Fylkesnavn: "Troms" },
-  { Fylkesnummer: "56", Fylkesnavn: "Finnmark" }
+  { Fylkesnummer: "03", Fylkesnavn: "Oslo", Nettsted: "https://www.oslo.kommune.no/" },
+  { Fylkesnummer: "11", Fylkesnavn: "Rogaland", Nettsted: "https://www.rogfk.no/" },
+  { Fylkesnummer: "15", Fylkesnavn: "Møre og Romsdal", Nettsted: "https://mrfylke.no/" },
+  { Fylkesnummer: "18", Fylkesnavn: "Nordland", Nettsted: "https://www.nfk.no/" },
+  { Fylkesnummer: "32", Fylkesnavn: "Akershus", Nettsted: "https://afk.no/" },
+  { Fylkesnummer: "34", Fylkesnavn: "Innlandet", Nettsted: "https://innlandetfylke.no/" },
+  { Fylkesnummer: "42", Fylkesnavn: "Agder", Nettsted: "https://agderfk.no/" },
+  { Fylkesnummer: "46", Fylkesnavn: "Vestland", Nettsted: "https://www.vestlandfylke.no/" },
+  { Fylkesnummer: "50", Fylkesnavn: "Trøndelag", Nettsted: "https://www.trondelagfylke.no/" },
+  { Fylkesnummer: "55", Fylkesnavn: "Troms", Nettsted: "https://www.tromsfylke.no/" },
+  { Fylkesnummer: "56", Fylkesnavn: "Finnmark", Nettsted: "https://www.ffk.no/" }
 ];
 
 export const mockKommuner: Municipality[] = [

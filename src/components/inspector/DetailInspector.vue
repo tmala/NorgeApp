@@ -41,6 +41,39 @@ const displayedKommunerForCounty = computed(() => {
   }
   return [];
 });
+
+const municipalityUrl = computed(() => {
+  if (!currentKommune.value) return '';
+  let name = currentKommune.value.Kommunenavn.toLowerCase();
+  if (name === 'kvænangen') {
+    name = 'kvanangen';
+  } else if (name === 'kvæfjord') {
+    name = 'kvafjord';
+  } else if (name === 'nærøysund') {
+    name = 'naroysund';
+  } else if (name === 'træna') {
+    name = 'trana';
+  } else if (name === 'værøy') {
+    name = 'varoy';
+  } else if (name === 'bø') {
+    name = 'boe';
+  } else if (name === 'indre østfold') {
+    name = 'io';
+  } else if (name === 'nordre follo') {
+    name = 'nordrefollo';
+  } else if (name === 'rælingen') {
+    name = 'ralingen';
+  } else if (name === 'ål') {
+    name = 'aal';
+  } else {
+    name = name
+      .replace(/æ/g, 'ae')
+      .replace(/ø/g, 'o')
+      .replace(/å/g, 'a')
+      .replace(/\s+/g, '-');
+  }
+  return `https://www.${name}.kommune.no`;
+});
 </script>
 
 <template>
@@ -187,9 +220,24 @@ const displayedKommunerForCounty = computed(() => {
           :href="`https://www.google.com/maps/search/?api=1&query=${currentKommune.Kommunenavn}+kommune+Norway`" 
           target="_blank" 
           class="btn btn-primary"
-          style="flex: 1; text-align: center; text-decoration: none;"
+          style="flex: 1; text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem;"
         >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+          </svg>
           Vis i Google Maps
+        </a>
+        <a 
+          v-if="municipalityUrl"
+          :href="municipalityUrl" 
+          target="_blank" 
+          class="btn btn-secondary"
+          style="flex: 1; text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem;"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.12 0 2-.88 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+          </svg>
+          Kommunens hjemmeside
         </a>
       </div>
     </div>
@@ -240,6 +288,20 @@ const displayedKommunerForCounty = computed(() => {
             </button>
           </div>
         </div>
+      </div>
+
+      <div v-if="currentFylke.Nettsted" style="margin-top: 1.5rem; display: flex; gap: 0.75rem;">
+        <a 
+          :href="currentFylke.Nettsted" 
+          target="_blank" 
+          class="btn btn-primary"
+          style="flex: 1; text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem;"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.12 0 2-.88 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+          </svg>
+          Fylkets nettside
+        </a>
       </div>
     </div>
 

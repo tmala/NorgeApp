@@ -10,7 +10,16 @@ const displayedKommuner = computed(() => {
   if (query) {
     const matched = geoStore.searchResults?.kommuner || [];
     if (geoStore.selectedFylkeId) {
-      return matched.filter(k => k.Fylkesnummer === geoStore.selectedFylkeId);
+      const selectedCounty = geoStore.fylker.find(f => f.Fylkesnummer === geoStore.selectedFylkeId);
+      const countyMatchesQuery = selectedCounty && (
+        selectedCounty.Fylkesnummer.includes(query) ||
+        selectedCounty.Fylkesnavn.toLowerCase().includes(query)
+      );
+      if (countyMatchesQuery) {
+        return geoStore.kommuner.filter(k => k.Fylkesnummer === geoStore.selectedFylkeId);
+      } else {
+        return matched.filter(k => k.Fylkesnummer === geoStore.selectedFylkeId);
+      }
     }
     return matched;
   }

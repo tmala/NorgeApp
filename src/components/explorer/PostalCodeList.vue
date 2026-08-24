@@ -9,12 +9,37 @@ const displayedPostnummer = computed(() => {
   const query = geoStore.searchQuery.trim().toLowerCase();
   if (query) {
     const matched = geoStore.searchResults?.postnummer || [];
+    console.log('debug displayedPostnummer:', {
+      query,
+      selectedKommuneId: geoStore.selectedKommuneId,
+      selectedFylkeId: geoStore.selectedFylkeId,
+      matchedCount: matched.length,
+      matchedList: matched.map(p => ({ Postnummer: p.Postnummer, Poststed: p.Poststed, Kommunenummer: p.Kommunenummer }))
+    });
     if (geoStore.selectedKommuneId) {
-      return matched.filter(p => p.Kommunenummer === geoStore.selectedKommuneId);
+      const selectedMuni = geoStore.kommuner.find(k => k.Kommunenummer === geoStore.selectedKommuneId);
+      const muniMatchesQuery = selectedMuni && (
+        selectedMuni.Kommunenummer.includes(query) ||
+        selectedMuni.Kommunenavn.toLowerCase().includes(query)
+      );
+      if (muniMatchesQuery) {
+        return geoStore.postnummer.filter(p => p.Kommunenummer === geoStore.selectedKommuneId);
+      } else {
+        return matched.filter(p => p.Kommunenummer === geoStore.selectedKommuneId);
+      }
     }
     if (geoStore.selectedFylkeId) {
+      const selectedCounty = geoStore.fylker.find(f => f.Fylkesnummer === geoStore.selectedFylkeId);
+      const countyMatchesQuery = selectedCounty && (
+        selectedCounty.Fylkesnummer.includes(query) ||
+        selectedCounty.Fylkesnavn.toLowerCase().includes(query)
+      );
       const munis = geoStore.kommuner.filter(k => k.Fylkesnummer === geoStore.selectedFylkeId).map(k => k.Kommunenummer);
-      return matched.filter(p => munis.includes(p.Kommunenummer));
+      if (countyMatchesQuery) {
+        return geoStore.postnummer.filter(p => munis.includes(p.Kommunenummer));
+      } else {
+        return matched.filter(p => munis.includes(p.Kommunenummer));
+      }
     }
     return matched;
   }

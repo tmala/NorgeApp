@@ -190,8 +190,7 @@ export const useGeoDataStore = defineStore('geoData', {
           const countyName = county ? county.Fylkesnavn : 'Ukjent';
           if (
             k.Kommunenummer.includes(query) || 
-            k.Kommunenavn.toLowerCase().includes(query) ||
-            countyName.toLowerCase().includes(query)
+            k.Kommunenavn.toLowerCase().includes(query)
           ) {
             matchedKommuner.push({ ...k, countyName });
           }
@@ -208,9 +207,7 @@ export const useGeoDataStore = defineStore('geoData', {
           
           if (
             p.Postnummer.includes(query) || 
-            p.Poststed.toLowerCase().includes(query) ||
-            muniName.toLowerCase().includes(query) ||
-            countyName.toLowerCase().includes(query)
+            p.Poststed.toLowerCase().includes(query)
           ) {
             matchedPostnummer.push({ 
               ...p, 
@@ -299,6 +296,8 @@ export const useGeoDataStore = defineStore('geoData', {
         if (type === 'fylker') {
           const fylkeNrIdx = findHeaderIndex(headers, ['fylkesnr', 'fylkesnummer', 'fylke_nr', 'fylke_nummer', 'code', 'id', 'fylkenr']);
           const fylkeNavnIdx = findHeaderIndex(headers, ['fylkesnavn', 'fylke_navn', 'navn', 'name', 'fylke navn']);
+          const nettstedIdx = findHeaderIndex(headers, ['nettsted', 'website', 'web', 'hjemmeside', 'url', 'nettside']);
+          const nettstedIdxResolved = nettstedIdx !== -1 ? nettstedIdx : 2;
           
           if (fylkeNrIdx === -1 || fylkeNavnIdx === -1) {
             throw new Error(`Mangler påkrevde kolonner i fylkesarket. Fant overskrifter: [${headers.join(', ')}]. Vennligst ha kolonner for 'Fylkesnummer' og 'Fylkesnavn'.`);
@@ -306,7 +305,8 @@ export const useGeoDataStore = defineStore('geoData', {
           
           this.fylker = dataRows.map(row => ({
             Fylkesnummer: String(row[fylkeNrIdx] || '').trim().padStart(2, '0'),
-            Fylkesnavn: String(row[fylkeNavnIdx] || '').trim()
+            Fylkesnavn: String(row[fylkeNavnIdx] || '').trim(),
+            Nettsted: String(row[nettstedIdxResolved] || '').trim()
           })).filter(f => f.Fylkesnavn);
           
         } else if (type === 'kommuner') {

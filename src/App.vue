@@ -42,11 +42,9 @@ function handleUpdateClick() {
         </svg>
       </div>
       <div>
-        <h1 style="display: flex; align-items: baseline; gap: 0.5rem;">
-          NorgeExplorer
-          <span style="font-size: 0.85rem; font-style: italic; font-weight: normal; color: var(--color-text-secondary); opacity: 0.85;">
-            v{{ pkg.version }}
-          </span>
+        <h1>
+          <span class="brand-title-text">NorgeExplorer</span>
+          <span class="brand-version">v{{ pkg.version }}</span>
         </h1>
         <p style="font-size: 0.8rem; color: var(--color-text-secondary);">Fylker, kommuner og postnummer</p>
       </div>

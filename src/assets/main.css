@@ -60,9 +60,26 @@
 
 .brand h1 {
   font-size: 1.5rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.brand-title-text {
   background: linear-gradient(to right, #ffffff, #94a3b8);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
+  color: #ffffff;
+}
+
+.brand-version {
+  font-size: 0.85rem;
+  font-style: italic;
+  font-weight: normal;
+  color: var(--color-text-secondary);
+  -webkit-text-fill-color: var(--color-text-secondary);
+  opacity: 0.85;
 }
 
 .sync-status-container {

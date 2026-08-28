@@ -1,0 +1,26 @@
+# =========================================================
+# Cache Control for NorgeApp (SPA)
+# =========================================================
+<IfModule mod_headers.c>
+  # 1. Standardregel: Aldri cache HTML eller mappe-forespørsler (f.eks. /nex/ og /nex/index.html)
+  Header set Cache-Control "no-cache, no-store, must-revalidate, max-age=0"
+  Header set Pragma "no-cache"
+  Header set Expires "0"
+
+  # 2. Statiske filer (JS/CSS) har unike hash-navn generert av Vite og kan caches trygt
+  <FilesMatch "\.(js|css|svg|png|jpg|jpeg|gif|ico|woff|woff2|ttf|eot)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+</IfModule>
+
+# =========================================================
+# SPA Routing (Undermappe: /nex/)
+# =========================================================
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /nex/
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /nex/index.html [L]
+</IfModule>
